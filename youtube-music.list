@@ -1,0 +1,28 @@
+# YouTube Music 专用域名集 —— 远程托管，改这里即可，无需改 Surge 配置
+# 用法（在 [Rule] 里加一行，放在 googleapis.com 那条之前）：
+#   RULE-SET,https://raw.githubusercontent.com/asnmhp-lgtm/surge-modules/main/youtube-music.list,"🇯🇵 日本"
+#
+# 说明：YouTube Music 判定地区靠 IP + 账号，凡是参与判定的域名都必须走同一个受支持地区的出口，
+#       任何一条漏走直连都会触发「你所在的国家/地区还不能使用 YouTube Music」。
+
+# ── 主站 ──
+DOMAIN,music.youtube.com
+DOMAIN-SUFFIX,music.youtube.com
+
+# ── API（地区判定主要走这里）──
+DOMAIN,youtubei.googleapis.com
+DOMAIN,music-youtubei.googleapis.com
+
+# ── 账号 / 地区归属判定 ──
+DOMAIN,accounts.google.com
+DOMAIN,accounts.youtube.com
+DOMAIN,www.youtube.com
+DOMAIN-SUFFIX,ytimg.com
+DOMAIN-SUFFIX,ggpht.com
+
+# ── 媒体流 ──
+DOMAIN-SUFFIX,googlevideo.com
+DOMAIN-SUFFIX,youtube.com
+DOMAIN-SUFFIX,youtu.be
+DOMAIN-SUFFIX,yt.be
+DOMAIN-SUFFIX,ytimg.l.google.com
