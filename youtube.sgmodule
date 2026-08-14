@@ -1,0 +1,20 @@
+#!name=YouTube (Music) 增强 - 无第三方中转版
+#!desc=去广告/画中画/后台播放/字幕翻译，适用于 YouTube & YouTube Music。相比原版移除了会把 initplayback 请求重定向到作者 Cloudflare Worker 的 request 脚本，广告改用本地 Map Local 拦截，全程不经过任何第三方服务器。
+#!arguments=屏蔽上传按钮:true,屏蔽选段按钮:true,屏蔽Shorts按钮:false,字幕翻译语言:off,启用调试模式:false
+#!arguments-desc=- 屏蔽参数：[true, false] \n- 翻译参数：[语言代码, off] \n\n1. 语言代码遵循 Google Translate Languages Codes，填 off 关闭翻译\n2. 调试模式输出更多日志\n\n审计说明：本模块只加载 youtube.response.js，且该脚本已固化到 github.com/asnmhp-lgtm/surge-modules 自托管（sha256 f98483d5f5017514…，已核查：外部域名仅 github.com，无 workers.dev 等第三方主机），上游作者无法再改动。原版的 youtube.request.js 会把带 clientKey 和原始播放地址的请求重定向到 init-stream.maasea.workers.dev，本模块不加载它。
+#!category=Enhancement
+
+# 强制 QUIC(UDP) 降级到 TCP，否则 MITM 拦不到
+[Rule]
+AND,((DOMAIN-SUFFIX,googlevideo.com), (PROTOCOL,UDP)),REJECT
+AND,((DOMAIN,youtubei.googleapis.com), (PROTOCOL,UDP)),REJECT
+
+# 本地拦截广告流初始化请求（&oad = ad 参数），不经第三方
+[Map Local]
+^https?:\/\/[\w-]+\.googlevideo\.com\/initplayback.+&oad data-type=text data="" status-code=502
+
+[Script]
+youtube.response = type=http-response,pattern=^https:\/\/youtubei\.googleapis\.com\/(youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence|guide|account\/get_setting|get_watch|config))(\?(.*))?$,requires-body=1,max-size=-1,binary-body-mode=1,script-path=https://raw.githubusercontent.com/asnmhp-lgtm/surge-modules/main/yt.js,argument="{"captionLang":"{{{字幕翻译语言}}}","blockUpload":{{{屏蔽上传按钮}}},"blockImmersive":{{{屏蔽选段按钮}}},"blockShorts":{{{屏蔽Shorts按钮}}},"debug":{{{启用调试模式}}}}"
+
+[MITM]
+hostname = %APPEND% *.googlevideo.com, youtubei.googleapis.com, music.youtube.com, www.youtube.com

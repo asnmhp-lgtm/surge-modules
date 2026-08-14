@@ -1,0 +1,20 @@
+#!name= iRingo: 📍 Location (GB 英国)
+#!desc=自定义「定位服务」的地区检测结果。已预设为 GB(英国)，配合伦敦定位使用。\n改的是苹果「基于网络的地区检测」(gspe1-ssl.ls.apple.com/pep/gcc)，影响 Apple 地图是否强制高德、WiFi Calling、Apple Watch 分区域功能、eSIM 限制等。\n⚠️ 不影响 App Store 商店地区，也解决不了 YouTube Premium 跨区订阅。
+#!openUrl=http://boxjs.com/#/app/iRingo.Location
+#!author=VirgilClyne[https://github.com/VirgilClyne]
+#!homepage=https://NSRingo.github.io/guide/GeoServices/location
+#!icon=https://images.macrumors.com/article-new/2019/07/ios_location_services-250x250.jpg
+#!category= iRingo
+#!arguments=GeoCountryCode:GB
+#!arguments-desc=GeoCountryCode: [地区检测] 地理国家或地区代码\n\n常用: GB 英国 · US 美国 · JP 日本 · RO 罗马尼亚 · AU 澳洲 · IN 印度 · TW 台湾\n\n审计说明(2026-08-14): 远程脚本 response.bundle.js 已核查，外部域名仅 github.com，无 workers.dev 等第三方主机，无 eval/new Function。
+
+[Rule]
+# 📍 Country Code
+DOMAIN,gspe1-ssl.ls.apple.com,DIRECT
+
+[Script]
+# 📍 Country Code
+📍 Location.pep.gcc.response = type=http-response, pattern=^https?:\/\/gspe1-ssl\.ls\.apple\.com\/pep\/gcc, requires-body=1, script-path=https://github.com/NSRingo/GeoServices/releases/latest/download/response.bundle.js, argument=PEP.GCC={{{GeoCountryCode}}}
+
+[MITM]
+hostname = %APPEND% gspe1-ssl.ls.apple.com
